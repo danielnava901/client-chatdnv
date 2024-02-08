@@ -1,0 +1,17 @@
+version: '3'
+
+services:
+  db:
+    image: mariadb
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: chatdnv
+      MYSQL_USER: dnv
+      MYSQL_PASSWORD: vintela
+    volumes:
+      - data:/var/lib/mysql
+    ports:
+      - "3309:3306"
+
+volumes:
+  data:

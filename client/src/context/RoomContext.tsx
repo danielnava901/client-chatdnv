@@ -21,7 +21,7 @@ export const RoomProvider = ({children} : Props) => {
     useEffect(() => {
         ws.on("room-created", ({roomId}) => {
             console.log("RoomId: ", roomId);
-            navigate(`/room/${roomId}`);
+            navigate(`/dashboard/room/${roomId}`);
         })
     }, [])
 

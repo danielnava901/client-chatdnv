@@ -15,7 +15,7 @@ export const roomHandler = (socket: Socket) => {
         console.log("User connected this room");
     };
 
-    const joinRoom = ({id}) => {
+    const joinRoom = ({id} : {id: string}) => {
         console.log("User connected this room: " + id);
     };
 

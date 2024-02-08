@@ -7,6 +7,10 @@ import reportWebVitals from './reportWebVitals';
 import {RoomProvider} from "./context/RoomContext";
 import {Home} from "./pages/Home";
 import {Room} from "./pages/Room";
+import {UserProvider} from "./context/UserContext";
+import {Login} from "./pages/Login";
+import ProtectedRoute from "./pages/ProtectedRoute";
+import {Logout} from "./pages/Logout";
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -14,15 +18,19 @@ const root = ReactDOM.createRoot(
 root.render(
   <React.StrictMode>
       <BrowserRouter>
-          <RoomProvider>
-              <Routes>
-                  <Route path="/" element={<Home />} />
-                  <Route path="/room/:id" element={<Room />} />
-              </Routes>
-              <App />
-          </RoomProvider>
+          <UserProvider>
+              <RoomProvider>
+                  <Routes>
+                      <Route path="/login" index element={<Login />} />
+                      <Route path="/logout" index element={<Logout />} />
+                      <Route path="/dashboard" element={<ProtectedRoute />}>
+                          <Route index element={<Home />} />
+                          <Route path="room/:id" element={<Room />} />
+                      </Route>
+                  </Routes>
+              </RoomProvider>
+          </UserProvider>
       </BrowserRouter>
-
   </React.StrictMode>
 );
 
