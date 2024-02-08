@@ -13,8 +13,17 @@ export const storeToken = (token: string) => {
     }
 }
 
-const getToken = () => {
+export const getToken = () => {
     return document.cookie.replace(/(?:(?:^|.*;\s*)jwtToken\s*=\s*([^;]*).*$)|^.*$/, '$1');
+}
+
+export const isValidToken = () => {
+    const token = getToken();
+    if(!token) return false;
+    const decodedToken = jwtDecode(token);
+    if(!decodedToken || !decodedToken.exp) return false;
+    const expirationTime = decodedToken?.exp * 1000;
+    return expirationTime > Date.now()
 }
 
 export const axiosApi = axios.create({
@@ -33,3 +42,4 @@ export const axiosHome = axios.create({
         "Content-Type": "application/json"
     }
 });
+

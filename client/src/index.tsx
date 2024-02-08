@@ -11,6 +11,7 @@ import {UserProvider} from "./context/UserContext";
 import {Login} from "./pages/Login";
 import ProtectedRoute from "./pages/ProtectedRoute";
 import {Logout} from "./pages/Logout";
+import {PageNotFound} from "./pages/PageNotFound";
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -27,6 +28,7 @@ root.render(
                           <Route index element={<Home />} />
                           <Route path="room/:id" element={<Room />} />
                       </Route>
+                      <Route path="*" element={<PageNotFound />} />
                   </Routes>
               </RoomProvider>
           </UserProvider>

@@ -1,18 +1,17 @@
 import React, {createContext, useEffect, useState} from "react";
-import {useNavigate} from "react-router-dom";
+import {useLocation, useNavigate} from "react-router-dom";
 import {axiosApi, axiosHome, removeToken, storeToken} from "../lib/util";
 
 
 type UserType = {
     id: number,
-    name: string,
+    name?: string,
     email: string
 };
 
 
 const userDefault : UserType = {
     id: -1,
-    name: "Default DNV",
     email: "example@email.com"
 }
 
@@ -37,10 +36,10 @@ type Props = {
 }
 export const UserProvider = ({children} : Props) => {
     let navigation = useNavigate();
-    const [user, setUser] = useState<UserType>(userDefault);
-    const getUserData = async () => {
 
-    }
+
+    const [user, setUser] = useState<UserType>(userDefault);
+
 
     const logout = () => {
         setUser(userDefault);
@@ -50,26 +49,23 @@ export const UserProvider = ({children} : Props) => {
 
     const login = async ({email, password} : {email: string, password: string}) => {
         // hacer login al server
-        let response = await axiosHome.post("/login", {
+        let response = await axiosHome.post("/auth/login", {
             email, password
         });
-        let {data} = response.data
-        let userLogged = data;
-        let {user, token} = userLogged;
 
-        if(!!user) {
+        let {code, data, error} = response.data
+        console.log({code, data, error});
+        if(code === 200) {
+            let {user, token} = data;
             setUser(user);
             storeToken(token);
             navigation("/dashboard");
         }else {
+            alert(error);
             logout();
         }
     }
 
-    useEffect(() => {
-        getUserData();
-        console.log("Aqui deberia ir a buscar data");
-    }, []);
 
     return <UserContext.Provider value={{
         user,

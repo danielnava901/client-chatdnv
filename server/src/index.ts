@@ -4,9 +4,10 @@ import { Server } from 'socket.io'
 import cors from 'cors';
 import jwt from 'jsonwebtoken'
 import dotenv from 'dotenv'
-import apiRouter from "./api";
-
-
+import apiRouter from "./routes/api";
+import operationsRouter from "./routes/operations";
+import bodyParser from 'body-parser';
+import authRouter from "./routes/auth";
 
 const port = 8080;
 const app = express();
@@ -21,49 +22,29 @@ const io = new Server(server, {
 
 dotenv.config({ path: './.env' });
 app.use(cors());
+app.use(express.urlencoded({ extended: false }));
+app.use(express.json());
+
+
+/**
+ * Manejador de rutas del API, que responderan a la app del FRONT
+ */
+app.use('/api', apiRouter);
+
+
+/**
+ * Ruta con manejador de LOGIN
+ */
+app.use('/auth', authRouter);
+
+/**
+ * Ruta solo para crear usuarios desde afuera
+ */
+app.use('/operations', operationsRouter);
 
 app.get('/', (req, res) => {
     res.send('Hello World!')
 })
-app.post("/login", (req,
- res, next) => {
-    console.log({body: req.body });
-
-    const user = {
-        id: 100,
-        name: "DanielN",
-        email: "daniel@nava.com"
-    };
-
-    let token;
-    try {
-        token = jwt.sign(
-            {
-                userId: 1,
-                email: "daniel@dnv.com"
-            },
-            `${process.env.JWT_SECRET}`,
-            { expiresIn: "1h" }
-        );
-    } catch (err) {
-        console.log(err);
-        const error =
-            new Error("Error! Something went wrong.");
-        return next(error);
-    }
-
-    console.log({login: token});
-
-    res.json({
-        code: 200,
-        data: {
-            user,
-            token
-        }
-    })
-})
-
-app.use('/api', apiRouter);
 
 app.listen(port, () => {
     console.log("listening in port "+ port);

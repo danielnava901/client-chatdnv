@@ -7,7 +7,7 @@ export const Home = () => {
 
     return (
         <div className="w-screen h-screen flex flex-col justify-center items-center">
-            <span>Hola, {user.name}!</span>
+            <span>Hola, {user.email}!</span>
             <CreateButton />
         </div>
     )
