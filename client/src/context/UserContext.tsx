@@ -1,6 +1,7 @@
 import React, {createContext, useEffect, useState} from "react";
 import {useNavigate} from "react-router-dom";
 import {axiosHome, removeToken, storeToken} from "../lib/util";
+import {destroySocket, socketConnect} from "../lib/socket";
 
 
 export type UserType = {
@@ -21,7 +22,8 @@ interface UserContextValueType {
     logout: () => void,
     login: () => void,
     currentContact: UserType|null,
-    setCurrentContact: () => void
+    setCurrentContact: () => void,
+    contactsConnected: []
 }
 
 const defaultValue : UserContextValueType = {
@@ -30,7 +32,8 @@ const defaultValue : UserContextValueType = {
     logout: () => {},
     login: () => {},
     currentContact: null,
-    setCurrentContact: () => {}
+    setCurrentContact: () => {},
+    contactsConnected: []
 };
 
 export const UserContext = createContext<null|any>(defaultValue);
@@ -43,11 +46,13 @@ export const UserProvider = ({children} : Props) => {
 
     const [user, setUser] = useState<UserType>(userDefault);
     const [currentContact, setCurrentContact] = useState<UserType | null>(null)
+    const [_contactsConnected, _setContactsConnected] = useState([]);
 
     const logout = () => {
         setUser(userDefault);
         navigation("/login");
         removeToken();
+        destroySocket();
     }
 
     const login = async ({email, password} : {email: string, password: string}) => {
@@ -68,13 +73,24 @@ export const UserProvider = ({children} : Props) => {
         }
     }
 
+    const setContactsConnected = (contacts : []) => {
+        localStorage.setItem("contacts", JSON.stringify(contacts));
+        _setContactsConnected(contacts);
+    }
+
+    const contactsConnected = () => {
+        return JSON.parse(localStorage.getItem("contacts") || "[]");
+    }
+
     return <UserContext.Provider value={{
         user,
         setUser,
         logout,
         login,
         currentContact,
-        setCurrentContact
+        setCurrentContact,
+        contactsConnected,
+        setContactsConnected
     }}>
         {children}
     </UserContext.Provider>

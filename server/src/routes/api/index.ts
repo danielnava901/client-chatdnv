@@ -25,7 +25,6 @@ apiRouter.post("/getUserList", verifyToken, async (
 
     if("user" in req) {
         const user : any = req.user;
-        console.log({user});
 
         const list : any = await prisma.users.findUnique({
             select: {
@@ -47,7 +46,7 @@ apiRouter.post("/getUserList", verifyToken, async (
 
         code = 200;
         error = null;
-        console.log({list})
+
         data = list.user_contacts;
     }
 

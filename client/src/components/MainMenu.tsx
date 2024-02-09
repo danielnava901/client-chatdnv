@@ -6,7 +6,7 @@ type Props = {
 
 const LeftSide = ({children} : Props) => {
     return <div className="border border-r h-screen w-[60px] flex flex-col">
-        <div className="w-full h-14 bg-gray-200
+        <div className="w-full h-[50px] bg-gray-200
             flex
             justify-center
             items-center

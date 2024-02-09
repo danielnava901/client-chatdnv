@@ -18,6 +18,53 @@ const io = new Server(server, {
     }
 });
 
+
+io.use((socket, next) => {
+    const username = socket.handshake.auth.username;
+    console.log("socket use user", username);
+    if (!username) {
+        return next(new Error("invalid username"));
+    }
+    socket["username"] = username;
+    next();
+});
+
+const getUserConnected = () => {
+    const usersConnected : any[] = []
+    const kv : any = io.of("/").sockets;
+
+    for (const [id, socket] of kv) {
+        console.log("onconection", id, socket.username);
+        usersConnected.push({
+            socketId: id,
+            username: socket.username,
+        });
+    }
+
+    return usersConnected;
+}
+
+io.on("connection", (socket) => {
+    const usersConnected = getUserConnected();
+
+    socket.on("private_message", ({ message, to }) => {
+        console.log({message, to});
+        socket.to(to).emit("private_message", {
+            message,
+            from: socket.id,
+        });
+    });
+    socket.broadcast.emit("user_connected", usersConnected);
+
+    socket.on("disconnect", (reason) => {
+        const usersConnected = getUserConnected();
+        socket.broadcast.emit("user_disconnected", usersConnected);
+        // called when the underlying connection is closed
+    });
+});
+
+
+
 dotenv.config({ path: './.env' });
 app.use(cors());
 app.use(express.urlencoded({ extended: false }));
@@ -44,6 +91,6 @@ app.get('/', (req, res) => {
     res.send('Hello World!')
 })
 
-app.listen(port, () => {
+server.listen(port, () => {
     console.log("listening in port "+ port);
 });

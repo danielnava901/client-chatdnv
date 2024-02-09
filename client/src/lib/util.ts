@@ -23,7 +23,8 @@ export const getUserFromToken = () => {
         return false;
     }
     let token = getToken();
-    return jwtDecode(token);
+    let user : UserType = jwtDecode(token);
+    return user;
 }
 
 
@@ -36,14 +37,16 @@ export const isValidToken = () => {
     return expirationTime > Date.now()
 }
 
-export const axiosApi = axios.create({
-    baseURL: 'http://localhost:8080/api/',
-    timeout: 1000,
-    headers: {
-        "Authorization": `Bearer ${getToken()}`,
-        "Content-Type": "application/json"
-    }
-});
+export const axiosApi = (token: string) => {
+    return axios.create({
+        baseURL: 'http://localhost:8080/api/',
+        timeout: 1000,
+        headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json"
+        }
+    })
+};
 
 export const axiosHome = axios.create({
     baseURL: 'http://localhost:8080/',

@@ -19,17 +19,17 @@ root.render(
   <React.StrictMode>
       <BrowserRouter>
           <UserProvider>
-              <RoomProvider>
+              {/*<RoomProvider>*/}
                   <Routes>
                       <Route path="/login" index element={<Login />} />
                       <Route path="/logout" index element={<Logout />} />
                       <Route path="/dashboard" element={<ProtectedRoute />}>
                           <Route index element={<Home />} />
-                          <Route path="room/:id" element={<Room />} />
+                          {/*<Route path="room/:id" element={<Room />} />*/}
                       </Route>
                       <Route path="*" element={<PageNotFound />} />
                   </Routes>
-              </RoomProvider>
+              {/*</RoomProvider>*/}
           </UserProvider>
       </BrowserRouter>
   </React.StrictMode>
