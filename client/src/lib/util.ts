@@ -1,5 +1,6 @@
 import axios from 'axios';
 import {jwtDecode} from 'jwt-decode';
+import {UserType} from "../context/UserContext";
 
 export const removeToken = () => {
     let token = getToken();
@@ -16,6 +17,15 @@ export const storeToken = (token: string) => {
 export const getToken = () => {
     return document.cookie.replace(/(?:(?:^|.*;\s*)jwtToken\s*=\s*([^;]*).*$)|^.*$/, '$1');
 }
+
+export const getUserFromToken = () => {
+    if(!isValidToken()) {
+        return false;
+    }
+    let token = getToken();
+    return jwtDecode(token);
+}
+
 
 export const isValidToken = () => {
     const token = getToken();

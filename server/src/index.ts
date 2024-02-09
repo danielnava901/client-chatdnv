@@ -2,11 +2,9 @@ import express from 'express';
 import http from "http";
 import { Server } from 'socket.io'
 import cors from 'cors';
-import jwt from 'jsonwebtoken'
 import dotenv from 'dotenv'
 import apiRouter from "./routes/api";
 import operationsRouter from "./routes/operations";
-import bodyParser from 'body-parser';
 import authRouter from "./routes/auth";
 
 const port = 8080;

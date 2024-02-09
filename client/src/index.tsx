@@ -1,17 +1,16 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
-import App from './App';
 import {BrowserRouter, Route, Routes} from "react-router-dom";
-import reportWebVitals from './reportWebVitals';
 import {RoomProvider} from "./context/RoomContext";
-import {Home} from "./pages/Home";
+import {Home} from "./pages/home/Home";
 import {Room} from "./pages/Room";
 import {UserProvider} from "./context/UserContext";
 import {Login} from "./pages/Login";
-import ProtectedRoute from "./pages/ProtectedRoute";
 import {Logout} from "./pages/Logout";
 import {PageNotFound} from "./pages/PageNotFound";
+import reportWebVitals from './reportWebVitals';
+import ProtectedRoute from "./pages/ProtectedRoute";
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement

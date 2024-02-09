@@ -8,9 +8,21 @@ datasource db {
 }
 
 model users {
-  id              Int       @id @default(autoincrement())
-  email           String    @unique(map: "users_email_uindex") @db.VarChar(50)
-  created_at      DateTime  @db.DateTime(0)
-  updated_at      DateTime? @db.DateTime(0)
-  password_digest String?   @db.VarChar(1000)
+  id              Int             @id @default(autoincrement())
+  email           String          @unique(map: "users_email_uindex") @db.VarChar(50)
+  created_at      DateTime        @db.DateTime(0)
+  updated_at      DateTime?       @db.DateTime(0)
+  password_digest String?         @db.VarChar(1000)
+  user_contacts   user_contacts[] @relation("user_contacts_user_idTousers")
+  user_is_contact user_contacts[] @relation("user_contacts_contact_idTousers")
+}
+
+model user_contacts {
+  user_id          Int
+  contact_id       Int
+  user_to_contacts users @relation("user_contacts_user_idTousers", fields: [user_id], references: [id], onUpdate: Restrict, map: "user_contacts_users_id_fk")
+  contacts_to_user users @relation("user_contacts_contact_idTousers", fields: [contact_id], references: [id], onUpdate: Restrict, map: "user_contacts_users_id_fk_2")
+
+  @@unique([user_id, contact_id], map: "user_contacts_pk")
+  @@index([contact_id], map: "user_contacts_users_id_fk_2")
 }

@@ -17,7 +17,7 @@ export const validateUserByEmailAndPassword = async ({email, password}) => {
 
     if(!user) return false;
 
-    if(!await bcrypt.compare(password, user.password_digest)) {
+    if(!await bcrypt.compare(password, `${user.password_digest}`)) {
         return false;
     }
 

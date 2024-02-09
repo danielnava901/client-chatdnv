@@ -1,9 +1,9 @@
 import React, {createContext, useEffect, useState} from "react";
-import {useLocation, useNavigate} from "react-router-dom";
-import {axiosApi, axiosHome, removeToken, storeToken} from "../lib/util";
+import {useNavigate} from "react-router-dom";
+import {axiosHome, removeToken, storeToken} from "../lib/util";
 
 
-type UserType = {
+export type UserType = {
     id: number,
     name?: string,
     email: string
@@ -15,18 +15,22 @@ const userDefault : UserType = {
     email: "example@email.com"
 }
 
-interface UserValueType {
+interface UserContextValueType {
     user: UserType,
     setUser: () => void,
     logout: () => void,
-    login: () => void
+    login: () => void,
+    currentContact: UserType|null,
+    setCurrentContact: () => void
 }
 
-const defaultValue : UserValueType = {
+const defaultValue : UserContextValueType = {
     user: userDefault,
     setUser: () => {},
     logout: () => {},
-    login: () => {}
+    login: () => {},
+    currentContact: null,
+    setCurrentContact: () => {}
 };
 
 export const UserContext = createContext<null|any>(defaultValue);
@@ -37,9 +41,8 @@ type Props = {
 export const UserProvider = ({children} : Props) => {
     let navigation = useNavigate();
 
-
     const [user, setUser] = useState<UserType>(userDefault);
-
+    const [currentContact, setCurrentContact] = useState<UserType | null>(null)
 
     const logout = () => {
         setUser(userDefault);
@@ -54,7 +57,6 @@ export const UserProvider = ({children} : Props) => {
         });
 
         let {code, data, error} = response.data
-        console.log({code, data, error});
         if(code === 200) {
             let {user, token} = data;
             setUser(user);
@@ -66,12 +68,13 @@ export const UserProvider = ({children} : Props) => {
         }
     }
 
-
     return <UserContext.Provider value={{
         user,
         setUser,
         logout,
-        login
+        login,
+        currentContact,
+        setCurrentContact
     }}>
         {children}
     </UserContext.Provider>
