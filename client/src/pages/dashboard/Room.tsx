@@ -8,7 +8,7 @@ import {VideoPlayer} from "../../components/VideoPlayer";
 
 export const Room = () => {
     const {me, setMe, setStream, stream, peers, setPeers} = useContext(RoomContext);
-    const [myPeerId, setMyPeerId] = useState(null);
+    const [incomingCall, setIncomingCall] = useState<any>([]);
 
     const user = getUserFromToken();
     let {id} = useParams()
@@ -19,20 +19,23 @@ export const Room = () => {
                 roomId: id,
             });
             let {data} = response.data;
-            console.log({data});
             cb(data);
         }
     }
 
     useEffect(() => {
-        socket.on("room_user_joined", ({peerId}) => {
+        socket.on("room_user_joined", (params) => {
+            const joinedPeerId = params.peerId;
+            console.log("Recibimos evento de joineado. Ingresó:", `|${joinedPeerId.trim()}|`);
+            console.log(":", {me, stream});
             if(!me || !stream) return;
-            console.log("Debo marcar a ", peerId);
-            const call = me.call(peerId, stream);
 
-            console.log("me:::::|||>", call);
+            const call = me.call(joinedPeerId, stream);
+
+            console.log("Reintenta 1 seg despues");
+            call.answer(stream);
             call.on("stream", (peerStream: any) => {
-                console.log("stream segundos", peerStream.id);
+                console.log("Llamada entrante Arriba: ", peerStream);
                 setPeers([...peers, peerStream]);
             });
         });
@@ -48,30 +51,38 @@ export const Room = () => {
         getData((data) => {
             if(!!user) {
                 try {
-                    setMyPeerId(data.peer_id);
                     console.log("YO SOY ", data.peer_id);
 
                     const peer : any = new Peer(data.peer_id);
-                    console.log("try", navigator.mediaDevices);
                     peer.on("open", (peerId : string) => {
                         navigator.mediaDevices
                             .getUserMedia({video: true, audio: true})
                             .then((stream) => {
-                                setStream(stream);
+                                setMe(peer);
+                                console.log("Emite evento de joineado");
+
+                                peer.on('call', (receivingCall : any) => {
+                                    console.log("answer call", {receivingCall});
+
+                                    receivingCall.answer(stream);
+
+                                    receivingCall.on("stream", (peerStream: any) => {
+                                        console.log("Llamada entrante abajo: ", peerStream);
+                                        setPeers([...peers, peerStream]);
+                                    });
+
+                                    setIncomingCall([...incomingCall, receivingCall]);
+                                });
+
                                 socket.emit("room_user_join", {
                                     roomId: id,
                                     userId: user.id,
                                     peerId: peerId
                                 });
+
+                                setStream(stream);
                             });
-                        setMe(peer);
-
-                        peer.on('call', (call : any) => {
-                            console.log("answer call", {call});
-                            call.answer(stream);
-                        });
                     });
-
                 }catch (e) {
                     console.error(e);
                 }
@@ -79,7 +90,9 @@ export const Room = () => {
         });
     }, []);
 
+    if(!stream) return <div>Cargando...</div>
 
+    console.log({incomingCall});
     return <div className="w-screen h-screen bg-gray-200 flex flex-col">
         <div className="w-full justify-between items-center">
             <div className="font-bold text-lg">Sesión {id}</div>
@@ -88,13 +101,16 @@ export const Room = () => {
         <div className="w-full flex flex-col">
             <div>
                 <VideoPlayer stream={stream} />
+                <span>{me._id}</span>
             </div>
             <div className="flex w-full items-center justify-center w-[200px]">
                 {
                     peers.map((peerStream: any, index: number) => {
-                        return <VideoPlayer
-                            key={index}
-                            stream={peerStream}  />
+                        return <div key={index}>
+                            <VideoPlayer
+                                stream={peerStream}  />
+                            <span>{incomingCall[index].peer}</span>
+                        </div>
                     })
                 }
             </div>
