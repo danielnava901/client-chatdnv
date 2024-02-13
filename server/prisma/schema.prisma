@@ -8,13 +8,18 @@ datasource db {
 }
 
 model users {
-  id              Int             @id @default(autoincrement())
-  email           String          @unique(map: "users_email_uindex") @db.VarChar(50)
-  created_at      DateTime        @db.DateTime(0)
-  updated_at      DateTime?       @db.DateTime(0)
-  password_digest String?         @db.VarChar(1000)
-  user_contacts   user_contacts[] @relation("user_contacts_user_idTousers")
-  user_is_contact user_contacts[] @relation("user_contacts_contact_idTousers")
+  id                                  Int             @id @default(autoincrement())
+  email                               String          @unique(map: "users_email_uindex") @db.VarChar(50)
+  created_at                          DateTime        @db.DateTime(0)
+  updated_at                          DateTime?       @db.DateTime(0)
+  password_digest                     String?         @db.VarChar(1000)
+  message_message_from_user_idTousers message[]       @relation("message_from_user_idTousers")
+  message_message_to_user_idTousers   message[]       @relation("message_to_user_idTousers")
+  room_room_from_user_idTousers       room[]          @relation("room_from_user_idTousers")
+  room_room_to_user_idTousers         room[]          @relation("room_to_user_idTousers")
+  room_user                           room_user[]
+  user_contacts                       user_contacts[] @relation("user_contacts_user_idTousers")
+  user_is_contact                     user_contacts[] @relation("user_contacts_contact_idTousers")
 }
 
 model user_contacts {
@@ -25,4 +30,48 @@ model user_contacts {
 
   @@unique([user_id, contact_id], map: "user_contacts_pk")
   @@index([contact_id], map: "user_contacts_users_id_fk_2")
+}
+
+model message {
+  id           Int       @id @default(autoincrement())
+  from_user_id Int
+  to_user_id   Int
+  created_at   DateTime  @db.DateTime(0)
+  seen_at      DateTime? @db.DateTime(0)
+  content      String?   @db.Text
+  removed      Int       @default(0)
+  user_from    users     @relation("message_from_user_idTousers", fields: [from_user_id], references: [id], onUpdate: Restrict, map: "message_users_id_fk")
+  users_to     users     @relation("message_to_user_idTousers", fields: [to_user_id], references: [id], onUpdate: Restrict, map: "message_users_id_fk_2")
+
+  @@index([from_user_id], map: "message_users_id_fk")
+  @@index([to_user_id], map: "message_users_id_fk_2")
+}
+
+model room {
+  id           Int         @id @default(autoincrement())
+  code_name    String      @unique(map: "room_code_name_uindex") @db.VarChar(200)
+  from_user_id Int
+  to_user_id   Int
+  created_at   DateTime    @db.DateTime(0)
+  closed_at    DateTime?   @db.DateTime(0)
+  peer_id      String?     @db.VarChar(255)
+  user_from    users       @relation("room_from_user_idTousers", fields: [from_user_id], references: [id], onUpdate: Restrict, map: "room_users_id_fk")
+  user_to      users       @relation("room_to_user_idTousers", fields: [to_user_id], references: [id], onUpdate: Restrict, map: "room_users_id_fk_2")
+  room_user    room_user[]
+
+  @@index([from_user_id], map: "room_users_id_fk")
+  @@index([to_user_id], map: "room_users_id_fk_2")
+}
+
+model room_user {
+  room_id   Int
+  user_id   Int
+  joined_at DateTime  @db.DateTime(0)
+  leave_at  DateTime? @db.DateTime(0)
+  peer_id   String?   @db.VarChar(255)
+  room      room      @relation(fields: [room_id], references: [id], onUpdate: Restrict, map: "room_user_room_id_fk")
+  users     users     @relation(fields: [user_id], references: [id], onUpdate: Restrict, map: "room_user_users_id_fk")
+
+  @@id([room_id, user_id])
+  @@index([user_id], map: "room_user_users_id_fk")
 }

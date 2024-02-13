@@ -12,8 +12,7 @@ export default function verifyToken(req, res, next) {
         const decoded : JwtPayload | any = jwt.verify(token, `${process.env.JWT_SECRET}`);
         req.user = {
             id: decoded.id,
-            email: decoded.email,
-            name: "nameDNV"
+            email: decoded.email
         };
         next();
     } catch (error) {

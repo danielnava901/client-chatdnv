@@ -6,6 +6,8 @@ import dotenv from 'dotenv'
 import apiRouter from "./routes/api";
 import operationsRouter from "./routes/operations";
 import authRouter from "./routes/auth";
+import {checkIfUserIsInRoom, getRoomByCode, joinUserToRoom} from "./repositories/rooms";
+import {getUserById} from "./repositories/users";
 
 const port = 8080;
 const app = express();
@@ -18,10 +20,8 @@ const io = new Server(server, {
     }
 });
 
-
 io.use((socket, next) => {
     const username = socket.handshake.auth.username;
-    console.log("socket use user", username);
     if (!username) {
         return next(new Error("invalid username"));
     }
@@ -34,7 +34,6 @@ const getUserConnected = () => {
     const kv : any = io.of("/").sockets;
 
     for (const [id, socket] of kv) {
-        console.log("onconection", id, socket.username);
         usersConnected.push({
             socketId: id,
             username: socket.username,
@@ -45,25 +44,49 @@ const getUserConnected = () => {
 }
 
 io.on("connection", (socket) => {
-    const usersConnected = getUserConnected();
+    socket.join(socket["username"]);
 
-    socket.on("private_message", ({ message, to }) => {
-        console.log({message, to});
-        socket.to(to).emit("private_message", {
-            message,
-            from: socket.id,
-        });
+    socket.on("private message", ({ message, to }) => {
+        socket.to(to).emit("private message", {from: socket["username"], message});
     });
-    socket.broadcast.emit("user_connected", usersConnected);
+
+    socket.on("join_user", (email) => {
+        if(email.trim().length > 0) {
+            socket.join(email);
+        }
+    });
+
+    socket.on("users_request", () => {
+        const usersConnected = getUserConnected();
+        socket.broadcast.emit("user_disconnected", usersConnected);
+    });
 
     socket.on("disconnect", (reason) => {
         const usersConnected = getUserConnected();
         socket.broadcast.emit("user_disconnected", usersConnected);
-        // called when the underlying connection is closed
+    });
+
+    socket.on("request_join_room", ({code_name, to}) => {
+        socket.join(code_name);
+        socket.to(to).emit("request_join_room", {
+            code_name,
+            from: socket["username"]
+        });
+    }) ;
+
+    socket.on("room_user_join", async ({roomId, peerId}) => {
+        const room : any = await getRoomByCode({code: roomId});
+        console.log("Room: ", roomId, " user join, PeerId", peerId);
+        socket.join(roomId);
+        socket.to(roomId)
+            .emit("room_user_joined", {peerId});
+    });
+
+    socket.on("connect_error", (error) => {
+        const usersConnected = getUserConnected();
+        socket.broadcast.emit("user_disconnected", usersConnected);
     });
 });
-
-
 
 dotenv.config({ path: './.env' });
 app.use(cors());

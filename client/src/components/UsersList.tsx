@@ -25,9 +25,11 @@ export const UserList = () => {
         {
             list.map((item : any, index) => {
                 let connected = false;
+                let socketId = "";
                 contactsConnected().forEach((contact : any) => {
                    if(item.contacts_to_user.email === contact.username) {
                        connected = true;
+                       socketId = contact.socketId;
                    }
                 });
                 let {contacts_to_user} = item;
@@ -43,11 +45,12 @@ export const UserList = () => {
                                 "bg-blue-200 hover:bg-blue-100" : "hover:bg-gray-100"}
                         `}
                     onClick={() => {
-                        setCurrentContact(contacts_to_user)
+                        setCurrentContact({...contacts_to_user, socketId});
+                        socket.emit("join_user", contacts_to_user.email);
                     }}
                 >
                     <div className="font-semibold text-sm flex justify-between items-center w-full">
-                        <span>{contacts_to_user.email}</span>
+                        <span>{contacts_to_user.email} – {socketId}</span>
                         <span>{connected ? <div className="h-2 w-2 mx-8 rounded-full bg-green-400">
                             &nbsp;
                         </div> : ""}</span>

@@ -1,6 +1,7 @@
 import axios from 'axios';
 import {jwtDecode} from 'jwt-decode';
 import {UserType} from "../context/UserContext";
+import {IP} from './constants';
 
 export const removeToken = () => {
     let token = getToken();
@@ -37,9 +38,11 @@ export const isValidToken = () => {
     return expirationTime > Date.now()
 }
 
+
+
 export const axiosApi = (token: string) => {
     return axios.create({
-        baseURL: 'http://localhost:8080/api/',
+        baseURL: `http://${IP}:8080/api/`,
         timeout: 1000,
         headers: {
             "Authorization": `Bearer ${token}`,
@@ -49,7 +52,7 @@ export const axiosApi = (token: string) => {
 };
 
 export const axiosHome = axios.create({
-    baseURL: 'http://localhost:8080/',
+    baseURL: `http://${IP}:8080/`,
     timeout: 1000,
     headers: {
         "Content-Type": "application/json"

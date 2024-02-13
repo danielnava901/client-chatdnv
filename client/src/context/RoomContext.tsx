@@ -1,12 +1,10 @@
-import socketIO from 'socket.io-client';
-import React, {createContext, useEffect} from "react";
-import {useNavigate} from "react-router-dom";
+import React, {createContext, useEffect, useState} from "react";
+import Peer from "peerjs";
+import {getUserFromToken} from "../lib/util";
 
-const WS = 'http://localhost:8080';
-const ws = socketIO(WS);
 
 const defultVal = {
-    ws: null
+    me: Peer
 };
 
 export const RoomContext = createContext<null|any>(defultVal);
@@ -16,16 +14,21 @@ type Props = {
 }
 
 export const RoomProvider = ({children} : Props) => {
-    const navigate = useNavigate();
+    const user = getUserFromToken();
+    const [me, setMe] = useState<Peer>();
+    const [stream, setStream] = useState<MediaStream>();
+    const [peers, setPeers] = useState<any>([]);
 
-    useEffect(() => {
-        ws.on("room-created", ({roomId}) => {
-            console.log("RoomId: ", roomId);
-            navigate(`/dashboard/room/${roomId}`);
-        })
-    }, [])
 
-    return (<RoomContext.Provider value={{ws}}>
+
+    return (<RoomContext.Provider value={{
+        me,
+        setMe,
+        stream,
+        setStream,
+        peers,
+        setPeers
+    }}>
         {children}
     </RoomContext.Provider>)
 }
