@@ -1,7 +1,7 @@
 import {io} from 'socket.io-client';
-import {IP} from './constants';
+import {IP, PORT, HTTPS} from './constants';
 
-const WS = `http://${IP}:8080`;
+const WS = `${HTTPS}://${IP}:${PORT}`;
 
 const socket = io(WS, { autoConnect: false });
 
