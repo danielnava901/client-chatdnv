@@ -41,8 +41,13 @@ export const isValidToken = () => {
 
 
 export const axiosApi = (token: string) => {
+    let baseUrl = `${HTTPS}://${IP}:${PORT}/api/`;
+    if(!!PORT) {
+        `${HTTPS}://${IP}/api/`
+    }
+
     return axios.create({
-        baseURL: `${HTTPS}://${IP}:${PORT}/api/`,
+        baseURL: baseUrl,
         timeout: 1000,
         headers: {
             "Authorization": `Bearer ${token}`,
@@ -52,7 +57,7 @@ export const axiosApi = (token: string) => {
 };
 
 export const axiosHome = axios.create({
-    baseURL: `${HTTPS}://${IP}:${PORT}/`,
+    baseURL: !!PORT ? `${HTTPS}://${IP}:${PORT}/` : `${HTTPS}://${IP}/`,
     timeout: 1000,
     headers: {
         "Content-Type": "application/json"
