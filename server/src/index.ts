@@ -61,11 +61,6 @@ io.on("connection", (socket) => {
         socket.broadcast.emit("user_disconnected", usersConnected);
     });
 
-    socket.on("disconnect", (reason) => {
-        const usersConnected = getUserConnected();
-        socket.broadcast.emit("user_disconnected", usersConnected);
-    });
-
     socket.on("request_join_room", ({code_name, to}) => {
         socket.join(code_name);
         socket.to(to).emit("request_join_room", {
@@ -80,6 +75,13 @@ io.on("connection", (socket) => {
         socket.join(roomId);
         socket.to(roomId)
             .emit("room_user_joined", {peerId});
+    });
+
+
+    socket.on("disconnect", (reason) => {
+        console.log("disconnected", {reason});
+        const usersConnected = getUserConnected();
+        socket.broadcast.emit("user_disconnected", usersConnected);
     });
 
     socket.on("connect_error", (error) => {

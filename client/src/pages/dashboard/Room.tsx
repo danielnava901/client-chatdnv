@@ -26,16 +26,12 @@ export const Room = () => {
     useEffect(() => {
         socket.on("room_user_joined", (params) => {
             const joinedPeerId = params.peerId;
-            console.log("Recibimos evento de joineado. Ingresó:", `|${joinedPeerId.trim()}|`);
-            console.log(":", {me, stream});
             if(!me || !stream) return;
 
             const call = me.call(joinedPeerId, stream);
 
-            console.log("Reintenta 1 seg despues");
             call.answer(stream);
             call.on("stream", (peerStream: any) => {
-                console.log("Llamada entrante Arriba: ", peerStream);
                 setPeers([...peers, peerStream]);
             });
         });
@@ -51,23 +47,18 @@ export const Room = () => {
         getData((data) => {
             if(!!user) {
                 try {
-                    console.log("YO SOY ", data.peer_id);
-
                     const peer : any = new Peer(data.peer_id);
                     peer.on("open", (peerId : string) => {
                         navigator.mediaDevices
                             .getUserMedia({video: true, audio: true})
                             .then((stream) => {
                                 setMe(peer);
-                                console.log("Emite evento de joineado");
 
                                 peer.on('call', (receivingCall : any) => {
-                                    console.log("answer call", {receivingCall});
 
                                     receivingCall.answer(stream);
 
                                     receivingCall.on("stream", (peerStream: any) => {
-                                        console.log("Llamada entrante abajo: ", peerStream);
                                         setPeers([...peers, peerStream]);
                                     });
 
@@ -92,7 +83,6 @@ export const Room = () => {
 
     if(!stream) return <div>Cargando...</div>
 
-    console.log({incomingCall});
     return <div className="w-screen h-screen bg-gray-200 flex flex-col">
         <div className="w-full justify-between items-center">
             <div className="font-bold text-lg">Sesión {id}</div>

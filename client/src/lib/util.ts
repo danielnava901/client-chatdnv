@@ -42,8 +42,8 @@ export const isValidToken = () => {
 
 export const axiosApi = (token: string) => {
     let baseUrl = `${HTTPS}://${IP}:${PORT}/api/`;
-    if(!!PORT) {
-        `${HTTPS}://${IP}/api/`
+    if(!PORT) {
+        baseUrl = `${HTTPS}://${IP}/api/`
     }
 
     return axios.create({

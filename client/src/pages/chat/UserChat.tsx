@@ -11,6 +11,7 @@ export const UserChat = () => {
     const [message, setMessage] = useState("");
     const [messageList, setMessageList] = useState([]);
     const chatRef = useRef<any>(null);
+    const chatInputRef = useRef<any>(null);
 
     const getMessageList = async () => {
         // Borramos lista para pedir por api
@@ -33,6 +34,10 @@ export const UserChat = () => {
     const updateMessageList = (msg: any) => {
         let list : any = [...messageList, msg];
         setMessageList(list);
+
+        if(chatInputRef && chatInputRef.current) {
+            chatInputRef.current.focus();
+        }
     }
 
     const sendMessage = async (message: string) => {
@@ -53,6 +58,18 @@ export const UserChat = () => {
         }
 
         setMessage("");
+    }
+
+    const sendMessageHandler = async () => {
+        if(message.trim().length === 0 || !user) {
+            return
+        }
+
+        socket.emit("private message", {
+            message,
+            to: currentContact.email
+        });
+        await sendMessage(message);
     }
 
     useEffect(() => {
@@ -94,7 +111,13 @@ export const UserChat = () => {
                         className={`flex w-full ${!!user && messageItem.from === user.email ? 
                             "justify-end" : "justify-start"}`}
                     >
-                        <div className={`border rounded-xl w-fit m-2  max-w-[calc(50%-50px)]
+                        <div className={`
+                            border 
+                            m-2
+                            rounded-xl 
+                            w-full 
+                            lg:w-fit  
+                            lg:max-w-[calc(50%-50px)]
                             ${!!user && messageItem.from === user.email ? 
                             "bg-green-200" : 
                             "bg-white"}
@@ -124,6 +147,13 @@ export const UserChat = () => {
                            setMessage(ev.target.value);
 
                        }}
+                       onKeyUp={async (ev) => {
+                           if(ev.key === "Enter") {
+                               await sendMessageHandler();
+                           }
+
+                       }}
+                       ref={chatInputRef}
                 />
             </div>
             <button className="
@@ -141,15 +171,7 @@ export const UserChat = () => {
                 text-blue-200
             "
                 onClick={async () => {
-                    if(message.trim().length === 0 || !user) {
-                        return
-                    }
-
-                    socket.emit("private message", {
-                        message,
-                        to: currentContact.email
-                    });
-                    await sendMessage(message);
+                    await sendMessageHandler();
                 }}
             >
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">

@@ -19,7 +19,7 @@ export const UserList = () => {
 
     useEffect(() => {
         getData();
-    }, [])
+    }, [contactsConnected])
 
     return <div>
         {
@@ -50,7 +50,7 @@ export const UserList = () => {
                     }}
                 >
                     <div className="font-semibold text-sm flex justify-between items-center w-full">
-                        <span>{contacts_to_user.email} – {socketId}</span>
+                        <span>{contacts_to_user.email}</span>
                         <span>{connected ? <div className="h-2 w-2 mx-8 rounded-full bg-green-400">
                             &nbsp;
                         </div> : ""}</span>

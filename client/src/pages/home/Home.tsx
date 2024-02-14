@@ -4,7 +4,7 @@ import LeftSide from "./LeftSide";
 import {RightSide} from "./RightSide";
 import MainMenu from "../../components/MainMenu";
 import {UserList} from "../../components/UsersList";
-import {UserChat} from "../../components/chat/UserChat";
+import {UserChat} from "../chat/UserChat";
 import socket, {socketConnect} from "../../lib/socket";
 import {getUserFromToken} from "../../lib/util";
 
